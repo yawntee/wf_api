@@ -1,0 +1,18 @@
+syntax = "v1"
+
+type request {
+
+}
+
+type response {
+
+}
+
+@server(
+    jwt: Auth
+    group: template
+)
+service template {
+    @handler handlerName
+    get /users/id/:userId (request) returns (response)
+}
