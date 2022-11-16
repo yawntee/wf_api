@@ -1,8 +1,9 @@
-package wf
+package internal
 
 import (
 	"bytes"
 	"fmt"
+	"golang.org/x/exp/slog"
 	"io"
 	"net/http"
 	"net/http/httputil"
@@ -16,7 +17,7 @@ var (
 
 var httpClient = http.Client{}
 
-func setHeaders(r *http.Request, headers map[string]string) {
+func SetHeaders(r *http.Request, headers map[string]string) {
 	for k, v := range headers {
 		if v != "" {
 			r.Header.Set(k, v)
@@ -26,7 +27,7 @@ func setHeaders(r *http.Request, headers map[string]string) {
 
 func HeaderBinder(headers map[string]string) func(r *http.Request) {
 	return func(r *http.Request) {
-		setHeaders(r, headers)
+		SetHeaders(r, headers)
 	}
 }
 
@@ -41,7 +42,7 @@ func Post(url string, body []byte, handler func(req *http.Request)) *io.ReadClos
 		if err != nil {
 			panic(err)
 		}
-		DebugMsg("Request", string(request))
+		slog.Debug("<Request>", string(request))
 	}
 	resp, err := httpClient.Do(req)
 	if err != nil {
@@ -52,7 +53,7 @@ func Post(url string, body []byte, handler func(req *http.Request)) *io.ReadClos
 		if err != nil {
 			panic(err)
 		}
-		DebugMsg("Response", string(request))
+		slog.Debug("<Response>", string(request))
 	}
 	return &resp.Body
 }

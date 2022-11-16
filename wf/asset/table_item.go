@@ -13,7 +13,7 @@ type ItemList struct {
 
 type ItemListTable map[int]ItemList
 
-func (a *CacheAsset) GetItemListTable() ItemListTable {
+func (a *Asset) GetItemListTable() ItemListTable {
 	if cache, ok := a.Cache["ItemList"].(ItemListTable); ok {
 		return cache
 	}

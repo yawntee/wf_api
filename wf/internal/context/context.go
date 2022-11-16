@@ -1,67 +1,38 @@
-package main
+package context
 
 import (
 	"net/http"
 	"strconv"
 	"wf_api/util"
 	"wf_api/wf/internal"
-	"wf_api/wf/internal/channel"
-	"wf_api/wf/internal/context"
-	"wf_api/wf/internal/module"
 )
 
-type ChannelType int
-
-const (
-	LEITING ChannelType = iota
-	BILIBILI
-)
-
-type Client struct {
-	*context.ClientContext
-	*module.LoginModule
-	*module.ShopModule
+type ClientContext struct {
+	*internal.Device
+	Channel  internal.Channel
+	GameUser *internal.GameUser
+	Encrypt  struct {
+		AndroidId  string
+		Oaid       string
+		Mac        string
+		Imei       string
+		TerminInfo string
+		OsVer      string
+	}
+	Loaded     bool
+	Udid       int
+	ShortUdid  int
+	LoginToken string
+	ViewerId   int
 }
 
-func NewClient(channelType ChannelType) *Client {
-	cx := context.NewClientContext()
-	c := &Client{
-		ClientContext: cx,
-		LoginModule:   module.NewLoginModule(cx),
-		ShopModule:    module.NewShopModule(cx),
+func NewClientContext() *ClientContext {
+	return &ClientContext{
+		Device: internal.NewDevice(),
 	}
-	var _channel internal.Channel
-	switch channelType {
-	case LEITING:
-		_channel = &channel.LeitingChannel{
-			ClientContext: c.ClientContext,
-		}
-	}
-	c.Channel = _channel
-	//init
-	c.Encrypt.AndroidId = internal.EncodeHeader(string(internal.DataCipher.Enc([]byte(c.AndroidId))))
-	c.Encrypt.Oaid = internal.EncodeHeader(string(internal.DataCipher.Enc([]byte(c.Oaid))))
-	c.Encrypt.Mac = internal.EncodeHeader(string(internal.DataCipher.Enc([]byte(c.Mac))))
-	c.Encrypt.Imei = internal.EncodeHeader(string(internal.DataCipher.Enc([]byte(c.Imei))))
-	c.Encrypt.TerminInfo = internal.EncodeHeader(string(internal.DataCipher.Enc([]byte(internal.Config.DeviceName))))
-	c.Encrypt.OsVer = internal.EncodeHeader(string(internal.DataCipher.Enc([]byte(internal.Config.DeviceName))))
-	return c
 }
 
-func (c *Client) Login(usr, pwd string) error {
-	gameUser, err := c.Channel.Login(usr, pwd)
-	if err != nil {
-		return err
-	}
-	c.GameUser = gameUser
-	err = c.SignUp()
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-func (c *Client) signReq(r *http.Request) {
+func (c *ClientContext) SignReq(r *http.Request) {
 	body, err := internal.PeekBody(r)
 	if err != nil {
 		panic(err)

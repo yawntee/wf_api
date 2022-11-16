@@ -1,4 +1,4 @@
-package wf
+package internal
 
 import (
 	"math/rand"

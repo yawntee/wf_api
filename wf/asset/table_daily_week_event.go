@@ -8,7 +8,7 @@ type DailyWeekEvent = Event
 
 type DailyWeekEventTable map[int]DailyWeekEvent
 
-func (a *CacheAsset) GetDailyWeekEventTable() DailyWeekEventTable {
+func (a *Asset) GetDailyWeekEventTable() DailyWeekEventTable {
 	if cache, ok := a.Cache["DailyWeekEvent"].(DailyWeekEventTable); ok {
 		return cache
 	}

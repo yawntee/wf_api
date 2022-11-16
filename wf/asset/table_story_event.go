@@ -9,7 +9,7 @@ type StoryEvent = Event
 
 type StoryEventTable map[int]StoryEvent
 
-func (a *CacheAsset) GetStoryEventTable() StoryEventTable {
+func (a *Asset) GetStoryEventTable() StoryEventTable {
 	if cache, ok := a.Cache["StoryEvent"].(StoryEventTable); ok {
 		return cache
 	}

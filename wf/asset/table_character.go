@@ -6,7 +6,7 @@ type Character struct {
 
 type CharacterTable map[int]Character
 
-func (a *CacheAsset) GetCharacterTable() CharacterTable {
+func (a *Asset) GetCharacterTable() CharacterTable {
 	if cache, ok := a.Cache["Character"].(CharacterTable); ok {
 		return cache
 	}

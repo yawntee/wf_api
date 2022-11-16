@@ -9,7 +9,7 @@ type CollectItemEvent = Event
 
 type CollectItemEventTable map[int]CollectItemEvent
 
-func (a *CacheAsset) GetCollectItemEventTable() CollectItemEventTable {
+func (a *Asset) GetCollectItemEventTable() CollectItemEventTable {
 	if cache, ok := a.Cache["CollectItemEvent"].(CollectItemEventTable); ok {
 		return cache
 	}

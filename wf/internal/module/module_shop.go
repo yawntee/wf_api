@@ -1,4 +1,16 @@
-package wf
+package module
+
+import (
+	"wf_api/wf/internal/context"
+)
+
+type ShopModule struct {
+	*context.ClientContext
+}
+
+func NewShopModule(clientContext *context.ClientContext) *ShopModule {
+	return &ShopModule{ClientContext: clientContext}
+}
 
 type ShopStock struct {
 	SalesList []struct {
@@ -16,6 +28,6 @@ type ShopStock struct {
 	} `json:"sales_list"`
 }
 
-func (c Client) GetSaleList() {
+func (c *ShopModule) GetSaleList() {
 
 }

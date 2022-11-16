@@ -5,13 +5,13 @@ import (
 	"os"
 )
 
-type CacheAsset struct {
+type Asset struct {
 	Asset map[string]string
 	Cache map[string]any
 }
 
-func NewCacheAsset(paths ...string) *CacheAsset {
-	asset := CacheAsset{
+func NewAsset(paths ...string) *Asset {
+	asset := Asset{
 		Asset: make(map[string]string),
 		Cache: make(map[string]any),
 	}
@@ -39,7 +39,7 @@ func NewCacheAsset(paths ...string) *CacheAsset {
 	return &asset
 }
 
-func (a *CacheAsset) getTableFile(path string) io.Reader {
+func (a *Asset) getTableFile(path string) io.Reader {
 	file, err := os.Open(a.Asset[hashPath("master"+path+".orderedmap")])
 	if err != nil {
 		panic(err)

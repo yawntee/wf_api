@@ -1,6 +1,8 @@
-package wf
+package internal
 
-import "fmt"
+import (
+	"fmt"
+)
 
 func UserAgent(device *Device) string {
 	return fmt.Sprintf(

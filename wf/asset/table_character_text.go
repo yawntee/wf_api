@@ -8,7 +8,7 @@ type CharacterText struct {
 
 type CharacterTextTable map[int]CharacterText
 
-func (a *CacheAsset) GetCharacterTextTable() CharacterTextTable {
+func (a *Asset) GetCharacterTextTable() CharacterTextTable {
 	if cache, ok := a.Cache["CharacterText"].(CharacterTextTable); ok {
 		return cache
 	}

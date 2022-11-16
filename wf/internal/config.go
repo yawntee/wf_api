@@ -1,7 +1,8 @@
-package wf
+package internal
 
 import (
 	"fmt"
+	"golang.org/x/exp/slog"
 	"gopkg.in/yaml.v3"
 	"os"
 )
@@ -30,5 +31,8 @@ func init() {
 	err = yaml.NewDecoder(file).Decode(&Config)
 	if err != nil {
 		panic(fmt.Errorf("未能正确加载配置文件\n%w", err))
+	}
+	if Config.Debug {
+		slog.Default().Enabled(slog.DebugLevel)
 	}
 }

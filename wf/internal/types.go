@@ -1,4 +1,10 @@
-package wf
+package internal
+
+import "errors"
+
+var (
+	ErrNoLogin = errors.New("您还未登录")
+)
 
 type GameUser struct {
 	Uid      int64  `json:"Uid,omitempty"`

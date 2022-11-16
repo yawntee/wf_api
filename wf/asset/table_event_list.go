@@ -12,7 +12,7 @@ type EventList struct {
 
 type EventListTable map[int]EventList
 
-func (a *CacheAsset) GetEventListTable() EventListTable {
+func (a *Asset) GetEventListTable() EventListTable {
 	if cache, ok := a.Cache["EventList"].(EventListTable); ok {
 		return cache
 	}

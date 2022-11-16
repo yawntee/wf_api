@@ -8,7 +8,7 @@ type AdventEvent = Event
 
 type AdventEventTable map[int]AdventEvent
 
-func (a *CacheAsset) GetAdventEventTable() AdventEventTable {
+func (a *Asset) GetAdventEventTable() AdventEventTable {
 	if cache, ok := a.Cache["AdventEvent"].(AdventEventTable); ok {
 		return cache
 	}

@@ -11,7 +11,7 @@ type BossCoinShop struct {
 
 type BossCoinShopTable map[int]BossCoinShop
 
-func (a *CacheAsset) GetBossCoinShopTable() BossCoinShopTable {
+func (a *Asset) GetBossCoinShopTable() BossCoinShopTable {
 	if cache, ok := a.Cache["BossCoinShop"].(BossCoinShopTable); ok {
 		return cache
 	}

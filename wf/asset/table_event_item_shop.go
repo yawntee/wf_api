@@ -13,7 +13,7 @@ type EventItemShop struct {
 
 type EventItemShopTable map[int]EventItemShop
 
-func (a *CacheAsset) GetEventItemShopTable() EventItemShopTable {
+func (a *Asset) GetEventItemShopTable() EventItemShopTable {
 	if cache, ok := a.Cache["EventItemShop"].(EventItemShopTable); ok {
 		return cache
 	}

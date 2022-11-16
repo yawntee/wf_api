@@ -58,7 +58,7 @@ type ShopItem struct {
 	Costs     []Item
 }
 
-func (a *CacheAsset) parseShopItem(strings []string, posItem, posRarity, posTime, costPos int) *ShopItem {
+func (a *Asset) parseShopItem(strings []string, posItem, posRarity, posTime, costPos int) *ShopItem {
 	itemTable := a.GetItemListTable()
 
 	//item
