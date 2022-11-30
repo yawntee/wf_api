@@ -6,6 +6,7 @@ import (
 	"crypto/md5"
 	"crypto/sha1"
 	"encoding/hex"
+	"fmt"
 	"hash"
 )
 
@@ -40,17 +41,15 @@ func NewCipher(init func([]byte) (cipher.Block, error), key []byte, iv []byte) *
 		panic(err)
 	}
 	if iv != nil {
-		enc := cipher.NewCBCEncrypter(blk, iv)
 		cip.Enc = func(data []byte) []byte {
 			content := PKCS5Padding(data, blk.BlockSize())
 			buf := make([]byte, len(content))
-			enc.CryptBlocks(buf, content)
+			cipher.NewCBCEncrypter(blk, iv).CryptBlocks(buf, content)
 			return buf
 		}
-		dec := cipher.NewCBCDecrypter(blk, iv)
 		cip.Dec = func(data []byte) []byte {
 			buf := make([]byte, len(data))
-			dec.CryptBlocks(buf, data)
+			cipher.NewCBCDecrypter(blk, iv).CryptBlocks(buf, data)
 			return PKCS5Trimming(buf)
 		}
 	} else {
@@ -75,10 +74,11 @@ func NewCipher(init func([]byte) (cipher.Block, error), key []byte, iv []byte) *
 	return &cip
 }
 
-func PKCS5Padding(cipherText []byte, blockSize int) []byte {
-	padding := blockSize - len(cipherText)%blockSize
-	padText := bytes.Repeat([]byte{byte(padding)}, padding)
-	return append(cipherText, padText...)
+func PKCS5Padding(ciphertext []byte, blockSize int) []byte {
+	fmt.Println(string(ciphertext))
+	padding := blockSize - len(ciphertext)%blockSize
+	padtext := bytes.Repeat([]byte{byte(padding)}, padding)
+	return append(ciphertext, padtext...)
 }
 
 func PKCS5Trimming(encrypt []byte) []byte {

@@ -15,10 +15,10 @@ type resp {
 
 type (
     selectGameUserReq {
-        GameUserId int64 `json:"gameUserId"`
+        GameUserId int64 `json:"gameUserId,string"`
     }
 
     selectGameUsersReq {
-        GameUserIds []int64 `json:"gameUserIds"`
+        GameUserIds []int64 `json:"gameUserIds,string"`
     }
 )
