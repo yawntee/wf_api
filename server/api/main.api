@@ -1,0 +1,24 @@
+syntax = "v1"
+
+import (
+    "api/token.api"
+    "api/user.api"
+    "api/game/user.api"
+    "api/game/shop.api"
+)
+
+type resp {
+    Code int `json:"code"`
+    Msg string `json:"msg,omitempty"`
+    Data interface{} `json:"data,omitempty"`
+}
+
+type (
+    selectGameUserReq {
+        GameUserId int64 `json:"gameUserId"`
+    }
+
+    selectGameUsersReq {
+        GameUserIds []int64 `json:"gameUserIds"`
+    }
+)

@@ -1,0 +1,24 @@
+syntax = "v1"
+
+
+
+type (
+    buyShopItemReq {
+        selectGameUsersReq
+        Selected []map[string]interface{} `json:"selected"`
+    }
+)
+
+@server(
+    jwt : Auth
+    group : game/shop
+)
+service server {
+    @doc "获取商店列表"
+    @handler shopList
+    post /game/shop returns (resp)
+
+    @doc "购买物品"
+    @handler buyShopItem
+    post /game/shop/buy (buyShopItemReq) returns (resp)
+}

@@ -1,0 +1,13 @@
+syntax = "v1"
+
+
+//token服务
+@server(
+    jwt : Auth
+    group : token
+)
+service server {
+    @doc "Token续期"
+    @handler renew
+    post /token returns (resp)
+}

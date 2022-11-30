@@ -1,0 +1,51 @@
+syntax = "v1"
+
+/*
+游戏账户
+*/
+
+type (
+    loginGameReq {
+        Channel uint8  `json:"channel"`
+        Usr     string `json:"usr"`
+        Pwd     string `json:"pwd"`
+    }
+    sendOtpReq {
+        Channel uint8  `json:"channel"`
+        Phone   string `json:"phone"`
+    }
+    otpLoginGameReq {
+        Phone   string `json:"phone"`
+        Otp    string `json:"otp"`
+    }
+)
+
+@server(
+    jwt: Auth
+    group : game
+)
+service server {
+    @doc "游戏用户登录"
+    @handler loginGame
+    post /game/login (loginGameReq) returns (resp)
+
+    @doc "游戏用户验证码发送"
+    @handler sendLoginGameOtp
+    post /game/login/send (sendOtpReq) returns (resp)
+
+    @doc "游戏用户验证码登录"
+    @handler otpLoginGame
+    post /game/login/otp (otpLoginGameReq) returns (resp)
+
+    @doc "获取游戏用户列表"
+    @handler gameUserList
+    post /game/user/list returns (resp)
+
+    @doc "删除游戏用户"
+    @handler removeGameUser
+    post /game/user/del (selectGameUserReq) returns (resp)
+
+    @doc "获取任务执行情况"
+    @handler getTaskStatus
+    post /game/task returns (resp)
+}

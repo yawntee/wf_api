@@ -1,0 +1,20 @@
+syntax = "v1"
+
+type (
+    loginReq {
+        Usr string `json:"usr"`
+        Pwd string `json:"pwd"`
+    }
+)
+
+/*
+用户
+*/
+@server(
+    group : users
+)
+service server {
+    @doc "用户登录"
+    @handler login
+    post /users/login (loginReq) returns (resp)
+}
