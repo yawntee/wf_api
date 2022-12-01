@@ -17,6 +17,7 @@ type Client struct {
 		TerminInfo string `json:"termin_info,omitempty"`
 		OsVer      string `json:"os_ver,omitempty"`
 	} `json:"encrypt"`
+	inited     bool
 	load       bool
 	udid       int
 	shortudid  int
@@ -44,24 +45,12 @@ func NewClient(id channel.Id) *Client {
 	return c
 }
 
-func (c *Client) loginGame() error {
-	err := c.SignUp()
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
 func (c *Client) Login(usr, pwd string) error {
 	gameUser, err := c.Channel.Channel.Login(c.Device, usr, pwd)
 	if err != nil {
 		return err
 	}
 	c.GameUser = gameUser
-	err = c.loginGame()
-	if err != nil {
-		return err
-	}
 	return nil
 }
 
@@ -79,9 +68,5 @@ func (c *Client) OtpLogin(phone, otp string) error {
 		return err
 	}
 	c.GameUser = gameUser
-	err = c.loginGame()
-	if err != nil {
-		return err
-	}
 	return nil
 }

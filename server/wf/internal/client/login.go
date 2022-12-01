@@ -29,6 +29,7 @@ func (c *Client) SignUp() error {
 	c.shortudid = resp.DataHeaders.ShortUdid
 	c.viewerId = resp.DataHeaders.ViewerId
 	c.logintoken = resp.Data.LoginToken
+	c.inited = true
 	return nil
 }
 

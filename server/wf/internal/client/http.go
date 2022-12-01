@@ -7,6 +7,7 @@ import (
 	"github.com/pkg/errors"
 	"net/http"
 	"net/http/httputil"
+	"strings"
 	"wf_api/server/wf/internal"
 )
 
@@ -47,6 +48,12 @@ type GameResp[T any] struct {
 }
 
 func PostMsgpack[T any](c *Client, url string, body any, target *GameResp[T], handler func(req *http.Request)) {
+	if !strings.HasSuffix(url, "/signup") && !c.inited {
+		err := c.SignUp()
+		if err != nil {
+			panic(err)
+		}
+	}
 	retry := 0
 start:
 	retry++

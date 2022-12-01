@@ -16,6 +16,7 @@ import (
 	"sync/atomic"
 	"time"
 	"wf_api/server/wf/internal/asset"
+	"wf_api/server/wf/internal/context"
 )
 
 func EncodeHeader(header string) string {
@@ -70,18 +71,12 @@ const (
 	retryLimit    = 3
 )
 
-var (
-	ErrAssetUpdate       = errors.New("游戏资源更新中。。。")
-	updateMutex    int32 = 0
-)
-
 func StartUpdateAssets(data GameUpdateData) {
-	if atomic.AddInt32(&updateMutex, 1) > 1 {
-		atomic.AddInt32(&updateMutex, -1)
-		panic(ErrAssetUpdate)
+	if atomic.AddInt32(&context.UpdateMutex, 1) > 1 {
+		atomic.AddInt32(&context.UpdateMutex, -1)
+		panic(context.ErrAssetUpdate)
 	}
 	go updateAssets(data)
-	panic(ErrAssetUpdate)
 }
 
 func updateAssets(data GameUpdateData) {
@@ -187,9 +182,9 @@ mainloop:
 			fmt.Printf("更新出错，2秒后重试。。。\n%+v\n", errors.WithStack(err))
 			continue mainloop
 		}
-		slog.Info("ResVer", data.Info.TargetAssetVersion)
+		slog.Info("更新完毕", "ResVer", data.Info.TargetAssetVersion)
 		//解锁
-		atomic.AddInt32(&updateMutex, -1)
+		atomic.AddInt32(&context.UpdateMutex, -1)
 		break mainloop
 	}
 }

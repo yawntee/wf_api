@@ -35,10 +35,6 @@ func (c *_ClientPool) GetClient(ctx context.Context, model model.GameUserModel, 
 	if err != nil {
 		return nil, err
 	}
-	err = client.SignUp()
-	if err != nil {
-		return nil, err
-	}
 	c.Set(id, &client, cache.DefaultExpiration)
 	return &client, nil
 }
