@@ -77,6 +77,7 @@ func StartUpdateAssets(data GameUpdateData) {
 		panic(context.ErrAssetUpdate)
 	}
 	go updateAssets(data)
+	panic(context.ErrAssetUpdate)
 }
 
 func updateAssets(data GameUpdateData) {
@@ -182,7 +183,7 @@ mainloop:
 			fmt.Printf("更新出错，2秒后重试。。。\n%+v\n", errors.WithStack(err))
 			continue mainloop
 		}
-		slog.Info("更新完毕", "ResVer", data.Info.TargetAssetVersion)
+		slog.Info("更新完毕", "ResVer", data.Info.EventualTargetAssetVersion)
 		//解锁
 		atomic.AddInt32(&context.UpdateMutex, -1)
 		break mainloop
