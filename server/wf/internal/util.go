@@ -186,6 +186,13 @@ mainloop:
 		slog.Info("更新完毕", "ResVer", data.Info.EventualTargetAssetVersion)
 		//解锁
 		atomic.AddInt32(&context.UpdateMutex, -1)
+		//清理缓存
+		err = os.RemoveAll(assetCacheDir)
+		if err != nil {
+			slog.Info("缓存文件夹清理失败", err)
+		} else {
+			slog.Info("缓存文件夹清理完毕")
+		}
 		break mainloop
 	}
 }
