@@ -2,6 +2,7 @@ package asset
 
 import (
 	"fmt"
+	"golang.org/x/exp/maps"
 	"io"
 	"os"
 	"path/filepath"
@@ -64,7 +65,7 @@ func (a *Asset) resolve(path string) {
 }
 
 func (a *Asset) Reset() {
-	a.Cache = make(map[string]any)
+	maps.Clear(a.Cache)
 	a.init()
 	for _, listener := range a.refreshListeners {
 		listener()

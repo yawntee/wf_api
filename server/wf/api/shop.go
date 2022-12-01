@@ -1,7 +1,6 @@
 package api
 
 import (
-	"fmt"
 	"github.com/zeromicro/go-zero/core/mathx"
 	"golang.org/x/exp/maps"
 	"golang.org/x/exp/slices"
@@ -65,13 +64,19 @@ func EventShops() []*Shop {
 	}
 	for id, event := range asset.GlobalAsset.GetStoryEventTable() {
 		if event.StartTime.Before(now) && event.ExchangeableEndTime.After(now) {
-			fmt.Println(event.Name)
 			resolveEvent(entries, id, event)
 		}
 	}
+	//将物品放入对应活动商店
 	for _, item := range itemTable {
 		if entry, ok := entries[item.EventId]; ok {
 			entry.Items = append(entry.Items, item.ShopItem)
+		}
+	}
+	//清除没有商店的活动
+	for k, shop := range entries {
+		if shop.Items == nil {
+			delete(entries, k)
 		}
 	}
 	//获取物品库存

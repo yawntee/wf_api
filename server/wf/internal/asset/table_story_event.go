@@ -17,8 +17,8 @@ func (a *Asset) GetStoryEventTable() StoryEventTable {
 	table := make(StoryEventTable)
 	for id, strings := range intMap {
 		startTime := util.ParseIso(strings[13])
-		playableEndTime := util.ParseIso(strings[13])
-		exchangeableEndTime := util.ParseIso(strings[13])
+		playableEndTime := util.ParseIso(strings[14])
+		exchangeableEndTime := util.ParseIso(strings[15])
 		table[id] = StoryEvent{
 			Name:                strings[1],
 			StartTime:           startTime,
