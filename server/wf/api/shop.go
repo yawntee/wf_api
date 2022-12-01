@@ -1,6 +1,7 @@
 package api
 
 import (
+	"fmt"
 	"github.com/zeromicro/go-zero/core/mathx"
 	"golang.org/x/exp/maps"
 	"golang.org/x/exp/slices"
@@ -59,6 +60,12 @@ func EventShops() []*Shop {
 	}
 	for id, event := range asset.GlobalAsset.GetCollectItemEventTable() {
 		if event.StartTime.Before(now) && event.ExchangeableEndTime.After(now) {
+			resolveEvent(entries, id, event)
+		}
+	}
+	for id, event := range asset.GlobalAsset.GetStoryEventTable() {
+		if event.StartTime.Before(now) && event.ExchangeableEndTime.After(now) {
+			fmt.Println(event.Name)
 			resolveEvent(entries, id, event)
 		}
 	}

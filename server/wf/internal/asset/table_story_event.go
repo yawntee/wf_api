@@ -24,6 +24,7 @@ func (a *Asset) GetStoryEventTable() StoryEventTable {
 			StartTime:           startTime,
 			PlayableEndTime:     playableEndTime,
 			ExchangeableEndTime: exchangeableEndTime,
+			Type:                2,
 		}
 	}
 	a.Cache["StoryEvent"] = table
