@@ -242,7 +242,7 @@ func (c *Channel) CheckLogin(device *internal.Device, user *internal.GameUser) e
 		AccessKey string `json:"access_key"`
 		Uid       uint64 `json:"uid"`
 	}
-	err := json.NewDecoder(internal.PostForm(originalDomain+"/api/external/login/v3", signForm(body, false), agentHeader)).Decode(&resp)
+	err := json.NewDecoder(internal.PostForm(originalDomain+"/api/external/user.token.oauth.login/v3", signForm(body, false), agentHeader)).Decode(&resp)
 	if err != nil {
 		panic(err)
 	}

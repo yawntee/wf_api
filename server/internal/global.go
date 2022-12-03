@@ -9,6 +9,7 @@ import (
 	"strconv"
 	"time"
 	"wf_api/server/model"
+	"wf_api/server/util"
 	"wf_api/server/wf"
 )
 
@@ -18,12 +19,12 @@ var ClientPool = (*_ClientPool)(cache.New(5*time.Minute, 10*time.Minute))
 
 var ErrInvalidGameUserId = errors.New("无效的游戏用户ID")
 
-func (c *_ClientPool) GetClient(ctx context.Context, model model.GameUserModel, gameUserId int64) (*wf.Client, error) {
+func (c *_ClientPool) GetClient(ctx context.Context, gameUserModel model.GameUserModel, gameUserId int64) (*wf.Client, error) {
 	id := strconv.FormatInt(gameUserId, 10)
 	if v, ok := c.Get(id); ok {
 		return v.(*wf.Client), nil
 	}
-	data, err := model.GetData(ctx, gameUserId)
+	data, err := gameUserModel.GetData(ctx, gameUserId)
 	if err != nil {
 		if err == sqlc.ErrNotFound {
 			return nil, ErrInvalidGameUserId
@@ -36,6 +37,16 @@ func (c *_ClientPool) GetClient(ctx context.Context, model model.GameUserModel, 
 		return nil, err
 	}
 	err = client.CheckLogin()
+	if err != nil {
+		return nil, err
+	}
+	err = gameUserModel.Update(ctx, &model.GameUser{
+		Id:      client.GameUser.Uid,
+		User:    GetUserId(ctx),
+		Channel: uint8(client.Channel.Id),
+		Name:    client.GameUser.Username,
+		Data:    util.ToJson(client),
+	})
 	if err != nil {
 		return nil, err
 	}
