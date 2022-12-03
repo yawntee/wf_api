@@ -18,13 +18,13 @@ func (a *Asset) GetBossCoinShopTable() BossCoinShopTable {
 	reader := a.GetTableFile("/shop/boss_coin_shop")
 	intMap := parseIntMap(reader)
 	table := make(BossCoinShopTable)
-	for id, strings := range intMap {
+	for id, params := range intMap {
 		//shopId
-		shopId, err := strconv.Atoi(strings[0])
+		shopId, err := strconv.Atoi(params[0])
 		if err != nil {
 			panic(err)
 		}
-		shopItem := a.parseShopItem(strings, 4, 29, 11, 22, 25, 12)
+		shopItem := a.parseShopItem(params, 4, 29, 11, 22, 25, 12)
 		shopItem.Id = id
 		if err != nil {
 			panic(err)

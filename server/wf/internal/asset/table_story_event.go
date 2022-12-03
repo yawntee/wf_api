@@ -15,12 +15,12 @@ func (a *Asset) GetStoryEventTable() StoryEventTable {
 	reader := a.GetTableFile("/quest/event/story_event")
 	intMap := parseIntMap(reader)
 	table := make(StoryEventTable)
-	for id, strings := range intMap {
-		startTime := util.ParseIso(strings[13])
-		playableEndTime := util.ParseIso(strings[14])
-		exchangeableEndTime := util.ParseIso(strings[15])
+	for id, params := range intMap {
+		startTime := util.ParseIso(params[13])
+		playableEndTime := util.ParseIso(params[14])
+		exchangeableEndTime := util.ParseIso(params[15])
 		table[id] = StoryEvent{
-			Name:                strings[1],
+			Name:                params[1],
 			StartTime:           startTime,
 			PlayableEndTime:     playableEndTime,
 			ExchangeableEndTime: exchangeableEndTime,

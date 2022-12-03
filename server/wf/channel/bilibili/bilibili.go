@@ -1,7 +1,7 @@
 package bilibili
 
 import (
-	"crypto/rand"
+	crand "crypto/rand"
 	"crypto/rsa"
 	"encoding/base64"
 	"encoding/json"
@@ -57,7 +57,7 @@ func (c *Channel) Login(device *internal.Device, usr, pwd string) (*internal.Gam
 	if err != nil {
 		return nil, err
 	}
-	encPwd, err := rsa.EncryptPKCS1v15(rand.Reader, cipherKey, []byte(hash+pwd))
+	encPwd, err := rsa.EncryptPKCS1v15(crand.Reader, cipherKey, []byte(hash+pwd))
 	if err != nil {
 		panic(err)
 	}
@@ -205,4 +205,55 @@ func (c *Channel) OtpLogin(device *internal.Device, phone, code string) (*intern
 		return nil, err
 	}
 	return user, nil
+}
+
+func (c *Channel) CheckLogin(device *internal.Device, user *internal.GameUser) error {
+	bdInfo := encBdInfo(c.bdInfo(device))
+	body := url.Values{
+		"cur_buvid":           {c.Buvid},
+		"sdk_type":            {sdkType},
+		"merchant_id":         {merchantId},
+		"platform":            {platform},
+		"apk_sign":            {apkSign},
+		"platform_type":       {platform},
+		"old_buvid":           {c.Buvid},
+		"udid":                {c.Udid},
+		"app_id":              {appId},
+		"game_id":             {appId},
+		"timestamp":           {timestamp()},
+		"version_code":        {versionCode()},
+		"bd_id":               {c.Bdid},
+		"server_id":           {serverId},
+		"version":             {version},
+		"domain_switch_count": {domainSwitchCount},
+		"app_ver":             {internal.GlobalConfig.VersionName},
+		"domain":              {domain},
+		"access_key":          {c.AccessKey},
+		"bd_info":             {base64.StdEncoding.EncodeToString(bdInfo)},
+		"original_domain":     {originalDomain},
+		"sdk_log_type":        {sdkLogType},
+		"current_env":         {currentEnv},
+		"sdk_ver":             {sdkVer},
+		"channel_id":          {channelId},
+	}
+	var resp struct {
+		Code      int    `json:"code"`
+		Message   string `json:"message"`
+		AccessKey string `json:"access_key"`
+		Uid       uint64 `json:"uid"`
+	}
+	err := json.NewDecoder(internal.PostForm(originalDomain+"/api/external/login/v3", signForm(body, false), agentHeader)).Decode(&resp)
+	if err != nil {
+		panic(err)
+	}
+	if resp.Code != CODE_SUCCESS {
+		return fmt.Errorf("%s", resp.Message)
+	}
+	c.AccessKey = resp.AccessKey
+	newUser, err := c.fetchGameUser(device, resp.Uid, user.Username, resp.AccessKey)
+	if err != nil {
+		return err
+	}
+	*user = *newUser
+	return nil
 }

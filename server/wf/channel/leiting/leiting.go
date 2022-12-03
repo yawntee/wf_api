@@ -134,3 +134,46 @@ func (c *Channel) OtpLogin(device *internal.Device, phone, code string) (*intern
 	}
 	return util.FromJson(internal.LoginCipher.Dec([]byte(resp.Data)), &internal.GameUser{}), nil
 }
+
+func (c *Channel) CheckLogin(device *internal.Device, user *internal.GameUser) error {
+	header := map[string]string{
+		"LtAid":        internal.GlobalConfig.Game,
+		"LtKid":        internal.GlobalConfig.LtKid,
+		"LtUid":        "0",
+		"User-Agent":   internal.UserAgent(device),
+		"Content-Type": "application/xxx-www-form-urlencoded",
+	}
+	body := util.ToJson(map[string]any{
+		"game":        internal.GlobalConfig.Game,
+		"channelNo":   c.GetChannelNo(),
+		"os":          internal.GlobalConfig.Os,
+		"mmid":        internal.GlobalConfig.Mmid,
+		"checkAuth":   internal.GlobalConfig.CheckAuth,
+		"media":       c.GetMedia(),
+		"versionName": internal.GlobalConfig.VersionName,
+		"versionCode": internal.GlobalConfig.VersionCode,
+		"sid":         user.Sid,
+		"token":       user.Token,
+		"accompany":   internal.GlobalConfig.Accompany,
+		"face":        internal.GlobalConfig.Face,
+		"serial":      internal.Serial(device),
+		"username":    user.Username,
+	})
+	var resp stdResp
+	err := json.NewDecoder(internal.Post(
+		"https://loginwf.leiting.com/sdk/check_login.do",
+		internal.LoginCipher.Enc(body),
+		internal.HeaderBinder(header),
+	)).Decode(&resp)
+	if err != nil {
+		return err
+	}
+	internal.DebugMsg(resp)
+	if resp.Status != 0 {
+		return errors.New(string(internal.LoginCipher.Dec([]byte(resp.Data))))
+	}
+	newUser := util.FromJson(internal.LoginCipher.Dec([]byte(resp.Data)), &internal.GameUser{})
+	user.Sid = newUser.Sid
+	user.Username = newUser.Username
+	return nil
+}

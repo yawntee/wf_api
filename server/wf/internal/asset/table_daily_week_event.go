@@ -15,12 +15,12 @@ func (a *Asset) GetDailyWeekEventTable() DailyWeekEventTable {
 	reader := a.GetTableFile("/quest/event/daily_week_event")
 	intMap := parseIntMap(reader)
 	table := make(DailyWeekEventTable)
-	for id, strings := range intMap {
-		startTime := util.ParseIso(strings[13])
-		playableEndTime := util.ParseIso(strings[13])
-		exchangeableEndTime := util.ParseIso(strings[13])
+	for id, params := range intMap {
+		startTime := util.ParseIso(params[13])
+		playableEndTime := util.ParseIso(params[13])
+		exchangeableEndTime := util.ParseIso(params[13])
 		table[id] = DailyWeekEvent{
-			Name:                strings[1],
+			Name:                params[1],
 			StartTime:           startTime,
 			PlayableEndTime:     playableEndTime,
 			ExchangeableEndTime: exchangeableEndTime,

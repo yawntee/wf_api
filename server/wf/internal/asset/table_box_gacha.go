@@ -14,8 +14,8 @@ func (a *Asset) GetBoxGachaTable() BoxGachaTable {
 	reader := a.GetTableFile("/box_gacha/box_gacha")
 	intMap := parseIntMap(reader)
 	table := make(BoxGachaTable)
-	for i, strings := range intMap {
-		fmt.Println(i, strings)
+	for i, params := range intMap {
+		fmt.Println(i, params)
 		table[i] = BoxGacha{}
 	}
 	a.Cache["BoxGacha"] = table

@@ -15,11 +15,11 @@ func (a *Asset) GetCharacterTextTable() CharacterTextTable {
 	reader := a.GetTableFile("/character/character_text")
 	intMap := parseIntMap(reader)
 	table := make(CharacterTextTable)
-	for i, strings := range intMap {
+	for i, params := range intMap {
 		table[i] = CharacterText{
-			Name:        strings[0],
-			Description: strings[1],
-			Nickname:    strings[2],
+			Name:        params[0],
+			Description: params[1],
+			Nickname:    params[2],
 		}
 	}
 	a.Cache["CharacterText"] = table

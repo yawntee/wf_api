@@ -7,7 +7,7 @@ import (
 
 type ItemList struct {
 	Name     string
-	Rarity   int
+	Rarity   uint8
 	MaxCount int
 }
 
@@ -20,21 +20,21 @@ func (a *Asset) GetItemListTable() ItemListTable {
 	reader := a.GetTableFile("/item/item")
 	intMap := parseIntMap(reader)
 	table := make(ItemListTable)
-	for i, strings := range intMap {
-		rarity, err := strconv.Atoi(strings[14])
+	for i, params := range intMap {
+		rarity, err := strconv.ParseUint(params[14], 10, 8)
 		if err != nil {
 			panic(err)
 		}
 		if rarity < 1 || rarity > 5 {
 			panic(fmt.Sprintf("%v\n%v", ErrItemRarity, rarity))
 		}
-		maxCount, err := strconv.Atoi(strings[15])
+		maxCount, err := strconv.Atoi(params[15])
 		if err != nil {
 			panic(err)
 		}
 		table[i] = ItemList{
-			Name:     strings[1],
-			Rarity:   rarity,
+			Name:     params[1],
+			Rarity:   uint8(rarity),
 			MaxCount: maxCount,
 		}
 	}

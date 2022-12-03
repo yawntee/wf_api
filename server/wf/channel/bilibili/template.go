@@ -9,7 +9,7 @@ import (
 	"wf_api/server/wf/internal"
 )
 
-func (c *Channel) bdInfo(device *internal.Device) string {
+func (c *Channel) bdInfo(device *internal.Device) []byte {
 	marshal, err := json.Marshal(map[string]any{
 		"udid":          c.Udid,
 		"bd_id":         c.Bdid,
@@ -68,7 +68,7 @@ func (c *Channel) bdInfo(device *internal.Device) string {
 	if err != nil {
 		panic(err)
 	}
-	return strings.ReplaceAll(string(marshal), "/", "\\/")
+	return []byte(strings.ReplaceAll(string(marshal), "/", "\\/"))
 }
 
 func timestamp() string {

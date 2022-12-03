@@ -16,17 +16,17 @@ func (a *Asset) GetCollectItemEventTable() CollectItemEventTable {
 	reader := a.GetTableFile("/reward/event/collect_item_event")
 	intMap := parseIntMap(reader)
 	table := make(CollectItemEventTable)
-	for id, strings := range intMap {
-		startTime := util.ParseIso(strings[17])
-		playableEndTime := util.ParseIso(strings[18])
+	for id, params := range intMap {
+		startTime := util.ParseIso(params[17])
+		playableEndTime := util.ParseIso(params[18])
 		var exchangeableEndTime time.Time
-		if t := strings[19]; t != "(None)" {
-			exchangeableEndTime = util.ParseIso(strings[19])
+		if t := params[19]; t != "(None)" {
+			exchangeableEndTime = util.ParseIso(params[19])
 		} else {
 			exchangeableEndTime = playableEndTime
 		}
 		table[id] = CollectItemEvent{
-			Name:                strings[1],
+			Name:                params[1],
 			StartTime:           startTime,
 			PlayableEndTime:     playableEndTime,
 			ExchangeableEndTime: exchangeableEndTime,

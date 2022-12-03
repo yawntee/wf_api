@@ -70,3 +70,11 @@ func (c *Client) OtpLogin(phone, otp string) error {
 	c.GameUser = gameUser
 	return nil
 }
+
+func (c *Client) CheckLogin() error {
+	err := c.Channel.CheckLogin(c.Device, c.GameUser)
+	if err != nil {
+		return err
+	}
+	return nil
+}

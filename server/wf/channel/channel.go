@@ -16,6 +16,7 @@ type Channel interface {
 	Login(device *internal.Device, usr, pwd string) (*internal.GameUser, error)
 	SendOtp(device *internal.Device, phone string) error
 	OtpLogin(device *internal.Device, phone, otp string) (*internal.GameUser, error)
+	CheckLogin(device *internal.Device, user *internal.GameUser) error
 }
 
 var (

@@ -20,20 +20,20 @@ func (a *Asset) GetEventItemShopTable() EventItemShopTable {
 	reader := a.GetTableFile("/shop/event_item_shop")
 	intMap := parseIntMap(reader)
 	table := make(EventItemShopTable)
-	for id, strings := range intMap {
+	for id, params := range intMap {
 		//event
-		eventType, err := strconv.Atoi(strings[0])
+		eventType, err := strconv.Atoi(params[0])
 		if err != nil {
 			panic(err)
 		}
 		if EventType(eventType) > EventTypeExpertSingle {
 			panic(fmt.Sprintf("%v\n%v", ErrInvalidEventType, eventType))
 		}
-		eventId, err := strconv.Atoi(strings[1])
+		eventId, err := strconv.Atoi(params[1])
 		if err != nil {
 			panic(err)
 		}
-		item := a.parseShopItem(strings, 6, 30, 13, 24, 27, 14)
+		item := a.parseShopItem(params, 6, 30, 13, 24, 27, 14)
 		item.Id = id
 		if err != nil {
 			panic(err)

@@ -19,8 +19,8 @@ func (a *Asset) GetBoxTable() BoxTable {
 		return parseIntMap(bytes.NewReader(data))
 	})
 	table := make(BoxTable)
-	for i, strings := range intMap {
-		fmt.Println(i, strings)
+	for i, params := range intMap {
+		fmt.Println(i, params)
 		table[i] = Box{}
 	}
 	a.Cache["Box"] = table

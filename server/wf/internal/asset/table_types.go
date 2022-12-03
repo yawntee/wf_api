@@ -49,7 +49,7 @@ type Item struct {
 	Name   string   `json:"name"`   //物品名称
 	Id     int      `json:"id"`     //物品id
 	Count  int      `json:"count"`  //物品数量
-	Rarity int      `json:"rarity"` //物品稀有度
+	Rarity uint8    `json:"rarity"` //物品稀有度
 }
 
 // ShopItem 商店兑换项
@@ -57,7 +57,7 @@ type ShopItem struct {
 	Id        int        `json:"id"`                  //兑换项id
 	Items     []Item     `json:"items"`               //获得的物品
 	Name      string     `json:"name"`                //列表项名称
-	Rarity    int        `json:"rarity"`              //稀有度
+	Rarity    uint8      `json:"rarity"`              //稀有度
 	StartTime time.Time  `json:"start_time"`          //起始时间
 	EndTime   *time.Time `json:"end_time"`            //结束时间
 	Costs     []Item     `json:"costs"`               //花费
@@ -65,13 +65,13 @@ type ShopItem struct {
 	MaxCount  int        `json:"max_count,omitempty"` //最大可兑换数量
 }
 
-func (a *Asset) parseShopItem(strings []string, namePos, itemPos, rarityPos, timePos, maxCountPos, costPos int) *ShopItem {
+func (a *Asset) parseShopItem(params []string, namePos, itemPos, rarityPos, timePos, maxCountPos, costPos int) *ShopItem {
 	itemTable := a.GetItemListTable()
 
 	//item
 	var items []Item
 	for i := itemPos; i < itemPos+3*6; i += 3 {
-		if itemType := strings[i]; itemType != "(None)" {
+		if itemType := params[i]; itemType != "(None)" {
 			num, err := strconv.Atoi(itemType)
 			if err != nil {
 				panic(fmt.Sprintf("%v\n%v", err, i))
@@ -81,13 +81,13 @@ func (a *Asset) parseShopItem(strings []string, namePos, itemPos, rarityPos, tim
 			var count = 1
 			switch _type {
 			case ITEM, CHARACTER, EQUIPMENT:
-				itemId, err = strconv.Atoi(strings[i+1])
+				itemId, err = strconv.Atoi(params[i+1])
 				if err != nil {
 					panic(err)
 				}
 				fallthrough
 			case EXP, MANA:
-				count, err = strconv.Atoi(strings[i+2])
+				count, err = strconv.Atoi(params[i+2])
 				if err != nil {
 					panic(err)
 				}
@@ -104,7 +104,7 @@ func (a *Asset) parseShopItem(strings []string, namePos, itemPos, rarityPos, tim
 	}
 
 	//rarity
-	rarity, err := strconv.Atoi(strings[rarityPos])
+	rarity, err := strconv.ParseUint(params[rarityPos], 10, 8)
 	if err != nil {
 		panic(err)
 	}
@@ -113,12 +113,12 @@ func (a *Asset) parseShopItem(strings []string, namePos, itemPos, rarityPos, tim
 	}
 
 	//time
-	startTime := util.ParseIso(strings[timePos])
+	startTime := util.ParseIso(params[timePos])
 	if err != nil {
 		panic(err)
 	}
 	var endTime *time.Time
-	if endTimeStr := strings[timePos+1]; endTimeStr != "(None)" {
+	if endTimeStr := params[timePos+1]; endTimeStr != "(None)" {
 		iso := util.ParseIso(endTimeStr)
 		if err != nil {
 			panic(err)
@@ -127,14 +127,14 @@ func (a *Asset) parseShopItem(strings []string, namePos, itemPos, rarityPos, tim
 	}
 
 	//maxCount
-	maxCount, err := strconv.Atoi(strings[maxCountPos])
+	maxCount, err := strconv.Atoi(params[maxCountPos])
 	if err != nil {
 		panic(err)
 	}
 
 	//costs
 	var costs []Item
-	if priceType := strings[costPos]; priceType != "(None)" {
+	if priceType := params[costPos]; priceType != "(None)" {
 		var _type ItemType
 		switch priceType {
 		case "0":
@@ -144,9 +144,9 @@ func (a *Asset) parseShopItem(strings []string, namePos, itemPos, rarityPos, tim
 		case "2":
 			_type = BondToken
 		default:
-			panic(fmt.Sprintf("%v\n%v", ErrShopCurrencyType, strings))
+			panic(fmt.Sprintf("%v\n%v", ErrShopCurrencyType, params))
 		}
-		count, err := strconv.Atoi(strings[costPos+1])
+		count, err := strconv.Atoi(params[costPos+1])
 		if err != nil {
 			panic(err)
 		}
@@ -160,12 +160,12 @@ func (a *Asset) parseShopItem(strings []string, namePos, itemPos, rarityPos, tim
 		panic(err)
 	}
 	for i := costPos + 2; i < costPos+2+2*4; i += 2 {
-		if costId := strings[i]; costId != "(None)" {
+		if costId := params[i]; costId != "(None)" {
 			id, err := strconv.Atoi(costId)
 			if err != nil {
 				panic(err)
 			}
-			count, err := strconv.Atoi(strings[i+1])
+			count, err := strconv.Atoi(params[i+1])
 			if err != nil {
 				panic(err)
 			}
@@ -181,8 +181,8 @@ func (a *Asset) parseShopItem(strings []string, namePos, itemPos, rarityPos, tim
 	}
 	return &ShopItem{
 		Items:     items,
-		Name:      strings[namePos],
-		Rarity:    rarity,
+		Name:      params[namePos],
+		Rarity:    uint8(rarity),
 		StartTime: startTime,
 		EndTime:   endTime,
 		Costs:     costs,

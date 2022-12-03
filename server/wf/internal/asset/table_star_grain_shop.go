@@ -11,8 +11,8 @@ func (a *Asset) GetStarGrainShopTable() StarGrainShopTable {
 	reader := a.GetTableFile("/shop/star_grain_shop")
 	intMap := parseIntMap(reader)
 	table := make(StarGrainShopTable)
-	for id, strings := range intMap {
-		item := a.parseShopItem(strings, 1, 24, 6, 17, 20, 7)
+	for id, params := range intMap {
+		item := a.parseShopItem(params, 1, 24, 6, 17, 20, 7)
 		item.Id = id
 		table[id] = *item
 	}

@@ -19,12 +19,12 @@ func (a *Asset) GetEventListTable() EventListTable {
 	reader := a.GetTableFile("/quest/event/event_list")
 	intMap := parseIntMap(reader)
 	table := make(EventListTable)
-	for _, strings := range intMap {
-		id, err := strconv.Atoi(strings[1])
+	for _, params := range intMap {
+		id, err := strconv.Atoi(params[1])
 		if err != nil {
 			panic(err)
 		}
-		_type, err := strconv.Atoi(strings[0])
+		_type, err := strconv.Atoi(params[0])
 		if err != nil {
 			panic(err)
 		}

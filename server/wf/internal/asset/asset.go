@@ -3,14 +3,13 @@ package asset
 import (
 	"fmt"
 	"golang.org/x/exp/maps"
-	"io"
 	"os"
 	"path/filepath"
 )
 
 var (
 	RootPath          = filepath.Join(os.Getenv("WF_DIR"), "resources")
-	DownloadAssetPath = filepath.Join(RootPath, "/asset_download/dummy/download")
+	DownloadAssetPath = filepath.Join(RootPath, "asset_download/dummy/download")
 )
 
 var GlobalAsset = NewAsset()
@@ -31,6 +30,7 @@ func NewAsset() *Asset {
 }
 
 func (a *Asset) init() {
+	//a.resolve(BundleAssetPath)
 	a.resolve(DownloadAssetPath)
 }
 
@@ -53,9 +53,9 @@ func (a *Asset) resolve(path string) {
 				}
 				for _, postfix := range sha1Postfix {
 					hash := prefix.Name() + postfix.Name()
-					//if _, ok := asset.Mapper[hash]; ok {
-					//	panic(fmt.Errorf("HASH冲突：%s", hash))
-					//}
+					if _, ok := a.Mapper[hash]; ok {
+						panic(fmt.Errorf("HASH冲突：%s", hash))
+					}
 					a.Mapper[hash] = filepath.Join(path, dir.Name(), prefix.Name(), postfix.Name())
 				}
 			}
@@ -76,7 +76,7 @@ func (a *Asset) AddOnResetListener(callback func()) {
 	a.refreshListeners = append(a.refreshListeners, callback)
 }
 
-func (a *Asset) GetTableFile(path string) io.Reader {
+func (a *Asset) GetTableFile(path string) *os.File {
 	path = a.getRealPath("master" + path + ".orderedmap")
 	if path == "" {
 		return nil
@@ -88,7 +88,7 @@ func (a *Asset) GetTableFile(path string) io.Reader {
 	return file
 }
 
-func (a *Asset) GetSpriteSheet(path string) io.Reader {
+func (a *Asset) GetSpriteSheet(path string) *os.File {
 	path = a.getRealPath(path + ".atlas.amf3.deflate")
 	if path == "" {
 		return nil

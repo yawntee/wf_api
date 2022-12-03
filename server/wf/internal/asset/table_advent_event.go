@@ -15,12 +15,12 @@ func (a *Asset) GetAdventEventTable() AdventEventTable {
 	reader := a.GetTableFile("/quest/event/advent_event")
 	intMap := parseIntMap(reader)
 	table := make(AdventEventTable)
-	for i, strings := range intMap {
-		startTime := util.ParseIso(strings[15])
-		playableEndTime := util.ParseIso(strings[16])
-		exchangeableEndTime := util.ParseIso(strings[17])
+	for i, params := range intMap {
+		startTime := util.ParseIso(params[15])
+		playableEndTime := util.ParseIso(params[16])
+		exchangeableEndTime := util.ParseIso(params[17])
 		table[i] = AdventEvent{
-			Name:                strings[1],
+			Name:                params[1],
 			StartTime:           startTime,
 			PlayableEndTime:     playableEndTime,
 			ExchangeableEndTime: exchangeableEndTime,
