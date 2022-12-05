@@ -1,8 +1,12 @@
 package context
 
-import "github.com/pkg/errors"
+import (
+	"github.com/pkg/errors"
+	"sync"
+)
 
 var (
 	ErrAssetUpdate       = errors.New("游戏资源更新中。。。")
 	UpdateMutex    int32 = 0
+	HttpMutex      sync.Mutex
 )

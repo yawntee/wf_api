@@ -9,6 +9,7 @@ import (
 	"net/http/httputil"
 	"strings"
 	"wf_api/server/wf/internal"
+	"wf_api/server/wf/internal/context"
 )
 
 type ResultCode int
@@ -73,7 +74,9 @@ start:
 		internal.DebugTitleMsg("<Request>", string(request))
 		fmt.Printf("%+v\n", body)
 	}
+	context.HttpMutex.Lock()
 	resp, err := http.DefaultClient.Do(req)
+	context.HttpMutex.Unlock()
 	if err != nil {
 		panic(err)
 	}

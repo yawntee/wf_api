@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"net/http/httputil"
 	"net/url"
+	"wf_api/server/wf/internal/context"
 )
 
 func SetHeaders(r *http.Request, headers map[string]string) {
@@ -37,7 +38,9 @@ func Post(url string, body []byte, handler func(req *http.Request)) io.ReadClose
 		}
 		DebugTitleMsg("<Request>", string(request))
 	}
+	context.HttpMutex.Lock()
 	resp, err := http.DefaultClient.Do(req)
+	context.HttpMutex.Unlock()
 	if err != nil {
 		panic(err)
 	}

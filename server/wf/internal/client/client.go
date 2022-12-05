@@ -1,12 +1,9 @@
 package client
 
 import (
-	"sync"
 	"wf_api/server/wf/channel"
 	"wf_api/server/wf/internal"
 )
-
-var mu sync.Mutex
 
 type Client struct {
 	*internal.Device `json:"device"`
@@ -49,9 +46,7 @@ func NewClient(id channel.Id) *Client {
 }
 
 func (c *Client) Login(usr, pwd string) error {
-	mu.Lock()
 	gameUser, err := c.Channel.Channel.Login(c.Device, usr, pwd)
-	mu.Unlock()
 	if err != nil {
 		return err
 	}
@@ -60,9 +55,7 @@ func (c *Client) Login(usr, pwd string) error {
 }
 
 func (c *Client) SendOtp(phone string) error {
-	mu.Lock()
 	err := c.Channel.SendOtp(c.Device, phone)
-	mu.Unlock()
 	if err != nil {
 		return err
 	}
@@ -70,9 +63,7 @@ func (c *Client) SendOtp(phone string) error {
 }
 
 func (c *Client) OtpLogin(phone, otp string) error {
-	mu.Lock()
 	gameUser, err := c.Channel.Channel.OtpLogin(c.Device, phone, otp)
-	mu.Unlock()
 	if err != nil {
 		return err
 	}
@@ -81,9 +72,7 @@ func (c *Client) OtpLogin(phone, otp string) error {
 }
 
 func (c *Client) CheckLogin() error {
-	mu.Lock()
 	err := c.Channel.CheckLogin(c.Device, c.GameUser)
-	mu.Unlock()
 	if err != nil {
 		return err
 	}
