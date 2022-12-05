@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"net/http/httputil"
 	"net/url"
+	"time"
 	"wf_api/server/wf/internal/context"
 )
 
@@ -40,16 +41,17 @@ func Post(url string, body []byte, handler func(req *http.Request)) io.ReadClose
 	}
 	context.HttpMutex.Lock()
 	resp, err := http.DefaultClient.Do(req)
+	time.Sleep(time.Second / 100)
 	context.HttpMutex.Unlock()
 	if err != nil {
 		panic(err)
 	}
 	if GlobalConfig.Debug {
-		request, err := httputil.DumpResponse(resp, true)
+		response, err := httputil.DumpResponse(resp, true)
 		if err != nil {
 			panic(err)
 		}
-		DebugTitleMsg("<Response>", string(request))
+		DebugTitleMsg("<Response>", string(response))
 	}
 	return resp.Body
 }

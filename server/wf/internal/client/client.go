@@ -18,7 +18,6 @@ type Client struct {
 		OsVer      string `json:"os_ver,omitempty"`
 	} `json:"encrypt"`
 	inited     bool
-	load       bool
 	udid       int
 	shortudid  int
 	logintoken string

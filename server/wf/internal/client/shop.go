@@ -21,6 +21,7 @@ type ShopStock struct {
 }
 
 func (c *Client) GetSaleList(types, ids []int, events []map[string]any) *ShopStock {
+	c.SignUp()
 	body := map[string]any{
 		"viewer_id":                   c.viewerId,
 		"shop_types":                  types,
@@ -34,6 +35,7 @@ func (c *Client) GetSaleList(types, ids []int, events []map[string]any) *ShopSto
 }
 
 func (c *Client) Buy(shopType []int, itemId, count int) *internal.ItemClaimedData {
+	c.SignUp()
 	c.apiCount++
 	body := map[string]any{
 		"shop_item_id": itemId,

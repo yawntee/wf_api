@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"net/http/httputil"
 	"strings"
+	"time"
 	"wf_api/server/wf/internal"
 	"wf_api/server/wf/internal/context"
 )
@@ -50,10 +51,7 @@ type GameResp[T any] struct {
 
 func PostMsgpack[T any](c *Client, url string, body any, target *GameResp[T], handler func(req *http.Request)) {
 	if !strings.HasSuffix(url, "/signup") && !c.inited {
-		err := c.SignUp()
-		if err != nil {
-			panic(err)
-		}
+		panic(errors.New("未初始化客户端"))
 	}
 	retry := 0
 start:
@@ -76,16 +74,17 @@ start:
 	}
 	context.HttpMutex.Lock()
 	resp, err := http.DefaultClient.Do(req)
+	time.Sleep(time.Second / 100)
 	context.HttpMutex.Unlock()
 	if err != nil {
 		panic(err)
 	}
 	if internal.GlobalConfig.Debug {
-		request, err := httputil.DumpResponse(resp, true)
+		response, err := httputil.DumpResponse(resp, true)
 		if err != nil {
 			panic(err)
 		}
-		internal.DebugTitleMsg("<Response>", string(request))
+		internal.DebugTitleMsg("<Response>", string(response))
 	}
 	var cache GameResp[any]
 	err = internal.UnwrapMsgpack(&resp.Body, &cache)
@@ -107,16 +106,21 @@ start:
 		case OVERSPEED:
 			panic(OVERSPEED.Msg())
 		case LOGINED:
-			err := c.SignUp()
-			if err != nil {
-				panic(err)
-			}
+			c.SignUp()
 			if retry >= 3 {
 				panic(LOGINED.Msg())
 			}
 			goto start
 		default:
-			fmt.Println("RequestRawBody", string(wrappedBody))
+			request, err := httputil.DumpRequest(req, true)
+			if err != nil {
+				panic(err)
+			}
+			response, err := httputil.DumpResponse(resp, true)
+			if err != nil {
+				panic(err)
+			}
+			internal.ErrorTitleMsg("ErrorRequest", fmt.Sprintf("%s%+v\n%s%+v", request, body, response, resp))
 			panic(errors.New(code.Msg()))
 		}
 	}

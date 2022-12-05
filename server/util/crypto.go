@@ -7,26 +7,16 @@ import (
 	"crypto/sha1"
 	"encoding/hex"
 	"fmt"
-	"hash"
-)
-
-var (
-	_sha1 = sha1.New()
-	_md5  = md5.New()
 )
 
 func Sha1(data []byte) string {
-	return digest(_sha1, data)
+	sum := sha1.Sum(data)
+	return hex.EncodeToString(sum[:])
 }
 
 func Md5(data []byte) string {
-	return digest(_md5, data)
-}
-
-func digest(algorithm hash.Hash, data []byte) string {
-	algorithm.Reset()
-	algorithm.Write(data)
-	return hex.EncodeToString(algorithm.Sum(nil))
+	sum := md5.Sum(data)
+	return hex.EncodeToString(sum[:])
 }
 
 type Cipher struct {

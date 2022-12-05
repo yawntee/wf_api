@@ -4,11 +4,13 @@ import (
 	"wf_api/server/wf/internal"
 )
 
-func (c *Client) SignUp() error {
-	if c.GameUser == nil {
-		return internal.ErrNoLogin
+func (c *Client) SignUp() {
+	if c.inited {
+		return
 	}
-	c.load = false
+	if c.GameUser == nil {
+		panic(internal.ErrNoLogin)
+	}
 	c.apiCount = 0
 	body := map[string]any{
 		"androidId":  c.Encrypt.AndroidId,
@@ -30,16 +32,13 @@ func (c *Client) SignUp() error {
 	c.viewerId = resp.DataHeaders.ViewerId
 	c.logintoken = resp.Data.LoginToken
 	c.inited = true
-	return nil
 }
 
 func (c *Client) LoadGameData() (*internal.GameUserInfo, error) {
-	if c.load {
-		err := c.SignUp()
-		if err != nil {
-			return nil, err
-		}
+	if c.apiCount > 0 {
+		c.inited = false
 	}
+	c.SignUp()
 	body := map[string]any{
 		"oaid":                 c.Encrypt.Oaid,
 		"viewer_id":            c.viewerId,
@@ -53,6 +52,5 @@ func (c *Client) LoadGameData() (*internal.GameUserInfo, error) {
 	}
 	var resp GameResp[internal.GameUserInfo]
 	PostMsgpack(c, "https://shijtswygamegf.leiting.com//api/index.php/load", body, &resp, c.SignReqWithViewerId)
-	c.load = true
 	return &resp.Data, nil
 }

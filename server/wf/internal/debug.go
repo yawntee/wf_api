@@ -24,7 +24,15 @@ func DebugMsg(msg any) {
 
 func DebugTitleMsg(title, msg any) {
 	if GlobalConfig.Debug {
-		fmt.Printf("%s%s%s\n", roundMark, title, roundMark)
-		fmt.Printf("%+v\n", msg)
+		ErrorTitleMsg(title, msg)
 	}
+}
+
+func ErrorMsg(msg any) {
+	ErrorTitleMsg(callerName(), msg)
+}
+
+func ErrorTitleMsg(title, msg any) {
+	fmt.Printf("%s%s%s\n", roundMark, title, roundMark)
+	fmt.Printf("%+v\n", msg)
 }

@@ -113,7 +113,6 @@ func BulkBuying(c *wf.Client, shops []BuyingShop) error {
 	for _, shop := range shops {
 		var bought = true
 		for bought {
-			time.Sleep(time.Second / 2)
 			bought = false
 			sales := c.GetSaleList(shop.Types, shop.Ids, shop.Events).SalesList
 			for _, sale := range sales {

@@ -170,7 +170,7 @@ func (c *Channel) CheckLogin(device *internal.Device, user *internal.GameUser) e
 	}
 	internal.DebugMsg(resp)
 	if resp.Status != 0 {
-		return errors.New(string(internal.LoginCipher.Dec([]byte(resp.Data))))
+		return errors.New(resp.Message)
 	}
 	newUser := util.FromJson(internal.LoginCipher.Dec([]byte(resp.Data)), &internal.GameUser{})
 	user.Sid = newUser.Sid

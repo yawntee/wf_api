@@ -8,11 +8,11 @@ type Resp struct {
 }
 
 type SelectGameUserReq struct {
-	GameUserId int64 `json:"gameUserId,string"`
+	GameUserId int64 `json:"gameUserId"`
 }
 
 type SelectGameUsersReq struct {
-	GameUserIds []int64 `json:"gameUserIds,string"`
+	GameUserIds []int64 `json:"gameUserIds"`
 }
 
 type LoginReq struct {
