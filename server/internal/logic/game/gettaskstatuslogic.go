@@ -3,7 +3,6 @@ package game
 import (
 	"context"
 	"strconv"
-	"sync/atomic"
 	"wf_api/server/internal"
 
 	"wf_api/server/internal/svc"
@@ -28,9 +27,11 @@ func NewGetTaskStatusLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Get
 
 func (l *GetTaskStatusLogic) GetTaskStatus() (resp *types.Resp, err error) {
 	userId := internal.GetUserId(l.ctx)
-	if p, ok := internal.TaskMutex[userId]; ok {
+	var results chan internal.TaskResult
+	var ok bool
+	if results, ok = internal.TaskResults[userId]; ok {
 		//任务未结束
-		if atomic.LoadInt32(p) > 0 {
+		if len(results) != cap(results) {
 			return internal.Success("", struct{}{})
 		}
 	} else {
@@ -38,11 +39,11 @@ func (l *GetTaskStatusLogic) GetTaskStatus() (resp *types.Resp, err error) {
 		return internal.Success("", nil)
 	}
 	data := make(map[string]string)
-	for res := range internal.TaskResults[userId] {
+	close(results)
+	for res := range results {
 		data[strconv.FormatInt(res.Id, 10)] = res.Msg
 	}
 	//清理
-	delete(internal.TaskMutex, userId)
 	delete(internal.TaskResults, userId)
 	return internal.Success("", data)
 }

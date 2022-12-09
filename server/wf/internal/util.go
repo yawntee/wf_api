@@ -13,7 +13,6 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-	"sync/atomic"
 	"time"
 	"wf_api/server/wf/internal/asset"
 	"wf_api/server/wf/internal/context"
@@ -72,11 +71,9 @@ const (
 )
 
 func StartUpdateAssets(data GameUpdateData) {
-	if atomic.AddInt32(&context.UpdateMutex, 1) > 1 {
-		atomic.AddInt32(&context.UpdateMutex, -1)
-		panic(context.ErrAssetUpdate)
+	if context.UpdateMutex.TryLock() {
+		go updateAssets(data)
 	}
-	go updateAssets(data)
 	panic(context.ErrAssetUpdate)
 }
 
@@ -185,7 +182,7 @@ mainloop:
 		}
 		slog.Info("更新完毕", "ResVer", data.Info.EventualTargetAssetVersion)
 		//解锁
-		atomic.AddInt32(&context.UpdateMutex, -1)
+		context.UpdateMutex.Unlock()
 		//清理缓存
 		err = os.RemoveAll(assetCacheDir)
 		if err != nil {

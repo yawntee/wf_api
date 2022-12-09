@@ -61,6 +61,4 @@ type TaskResult struct {
 
 var TaskResults = make(map[int64]chan TaskResult)
 
-var TaskMutex = make(map[int64]*int32)
-
 var OtpCache = cache.New(5*time.Minute, 10*time.Minute)

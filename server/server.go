@@ -34,7 +34,6 @@ func main() {
 			path = "/index.html"
 		}
 		path = filepath.Join(frontendPath, path)
-		fmt.Println(path)
 		_, err := os.Stat(path)
 		if err != nil {
 			http.ServeFile(w, r, indexUrl)
