@@ -65,6 +65,7 @@ func (a *Asset) resolve(path string) {
 }
 
 func (a *Asset) Reset() {
+	maps.Clear(a.Mapper)
 	maps.Clear(a.Cache)
 	a.init()
 	for _, listener := range a.refreshListeners {
@@ -78,6 +79,7 @@ func (a *Asset) AddOnResetListener(callback func()) {
 
 func (a *Asset) GetTableFile(path string) *os.File {
 	path = a.getRealPath("master" + path + ".orderedmap")
+	fmt.Println(path)
 	if path == "" {
 		return nil
 	}
