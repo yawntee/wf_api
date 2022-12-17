@@ -145,7 +145,10 @@ func BulkBuying(c *wf.Client, shops []BuyingShop) error {
 							continue
 						}
 					}
-					buyingCount := mathx.MinInt(sale.StockQuantity, retained[cost.Id]/cost.Count)
+					//库存量
+					buyingCount := mathx.MinInt(sale.StockQuantity, item.MaxCount)
+					//可购买量
+					buyingCount = mathx.MinInt(buyingCount, retained[cost.Id]/cost.Count)
 					if claim.Type == asset.ITEM {
 						buyingCount = mathx.MinInt(buyingCount, minus/claim.Count)
 					}
