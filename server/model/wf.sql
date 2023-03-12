@@ -5,10 +5,11 @@ create table user
     password varchar(255) not null
 );
 
-create table account
+create table game_user
 (
     id   bigint unsigned auto_increment primary key,
     user int      not null,
     name tinytext not null,
+    channel tinyint not null,
     data blob     not null
 );

@@ -8,7 +8,7 @@ type Resp struct {
 }
 
 type SelectGameUserReq struct {
-	GameUserId int64 `json:"gameUserId"`
+	GameUserId int64 `json:"gameUserId,string"`
 }
 
 type SelectGameUsersReq struct {

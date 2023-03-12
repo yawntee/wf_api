@@ -2,72 +2,60 @@ package asset
 
 import (
 	"fmt"
+	"github.com/pkg/errors"
 	"golang.org/x/exp/maps"
+	"log"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 var (
-	RootPath          = filepath.Join(os.Getenv("WF_DIR"), "resources")
-	DownloadAssetPath = filepath.Join(RootPath, "asset_download/dummy/download")
+	RootPath         = filepath.Join(os.Getenv("WF_DIR"), "resources")
+	AssetDownloadDir = filepath.Join(RootPath, "asset_download/dummy/download")
+	ResourceDirs     = []string{
+		AssetDownloadDir,
+	}
 )
 
 var GlobalAsset = NewAsset()
 
 type Asset struct {
-	Mapper           map[string]string
 	Cache            map[string]any
 	refreshListeners []func()
 }
 
 func NewAsset() *Asset {
 	asset := Asset{
-		Mapper: make(map[string]string),
-		Cache:  make(map[string]any),
+		Cache: make(map[string]any),
 	}
-	asset.init()
 	return &asset
 }
 
-func (a *Asset) init() {
-	//a.resolve(BundleAssetPath)
-	a.resolve(DownloadAssetPath)
-}
-
-func (a *Asset) resolve(path string) {
-	path = filepath.Join(path, "production")
-	dirs, err := os.ReadDir(path)
-	if err != nil {
-		panic(err)
-	}
-	for _, dir := range dirs {
-		if dir.IsDir() {
-			sha1Prefixes, err := os.ReadDir(filepath.Join(path, dir.Name()))
-			if err != nil {
-				panic(err)
-			}
-			for _, prefix := range sha1Prefixes {
-				sha1Postfix, err := os.ReadDir(filepath.Join(path, dir.Name(), prefix.Name()))
-				if err != nil {
-					panic(err)
-				}
-				for _, postfix := range sha1Postfix {
-					hash := prefix.Name() + postfix.Name()
-					if _, ok := a.Mapper[hash]; ok {
-						panic(fmt.Errorf("HASH冲突：%s", hash))
-					}
-					a.Mapper[hash] = filepath.Join(path, dir.Name(), prefix.Name(), postfix.Name())
-				}
-			}
+func (a *Asset) resolve(path string) string {
+	hash := hashPath(path)
+	for _, dir := range ResourceDirs {
+		format := "%s"
+		switch {
+		case strings.HasSuffix(path, ".png"):
+			format = "android_%s"
 		}
-
+		path = filepath.Join(dir, "production", fmt.Sprintf(format, "upload"), hash[:2], hash[2:])
+		_, err := os.Stat(path)
+		if errors.Is(err, os.ErrNotExist) {
+			continue
+		}
+		if err != nil {
+			panic(err)
+		}
+		return path
 	}
+	log.Fatalf("Cannot resolve file %s", path)
+	return ""
 }
 
 func (a *Asset) Reset() {
-	maps.Clear(a.Mapper)
 	maps.Clear(a.Cache)
-	a.init()
 	for _, listener := range a.refreshListeners {
 		listener()
 	}
@@ -78,8 +66,7 @@ func (a *Asset) AddOnResetListener(callback func()) {
 }
 
 func (a *Asset) GetTableFile(path string) *os.File {
-	path = a.getRealPath("master" + path + ".orderedmap")
-	fmt.Println(path)
+	path = a.resolve("master" + path + ".orderedmap")
 	if path == "" {
 		return nil
 	}
@@ -91,7 +78,7 @@ func (a *Asset) GetTableFile(path string) *os.File {
 }
 
 func (a *Asset) GetSpriteSheet(path string) *os.File {
-	path = a.getRealPath(path + ".atlas.amf3.deflate")
+	path = a.resolve(path + ".atlas.amf3.deflate")
 	if path == "" {
 		return nil
 	}
@@ -103,7 +90,7 @@ func (a *Asset) GetSpriteSheet(path string) *os.File {
 }
 
 func (a *Asset) GetPicture(path string) []byte {
-	path = a.getRealPath(path + ".png")
+	path = a.resolve(path + ".png")
 	if path == "" {
 		return nil
 	}
@@ -115,13 +102,4 @@ func (a *Asset) GetPicture(path string) []byte {
 	pic[2] = 0x4E
 	pic[3] = 0x47
 	return pic
-}
-
-func (a *Asset) getRealPath(path string) string {
-	if hashPath, ok := a.Mapper[hashPath(path)]; ok {
-		return hashPath
-	} else {
-		fmt.Printf("warning: 无法找到资源文件：%s\n", path)
-		return ""
-	}
 }

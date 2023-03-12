@@ -16,15 +16,15 @@ func (a *Asset) GetStoryEventTable() StoryEventTable {
 	intMap := parseIntMap(reader)
 	table := make(StoryEventTable)
 	for id, params := range intMap {
-		startTime := util.ParseIso(params[13])
-		playableEndTime := util.ParseIso(params[14])
-		exchangeableEndTime := util.ParseIso(params[15])
+		startTime := util.ParseIso(params[14])
+		playableEndTime := util.ParseIso(params[15])
+		exchangeableEndTime := util.ParseIso(params[16])
 		table[id] = StoryEvent{
-			Name:                params[1],
+			Name:                params[2],
 			StartTime:           startTime,
 			PlayableEndTime:     playableEndTime,
 			ExchangeableEndTime: exchangeableEndTime,
-			Type:                2,
+			Type:                EventTypeStory,
 		}
 	}
 	a.Cache["StoryEvent"] = table

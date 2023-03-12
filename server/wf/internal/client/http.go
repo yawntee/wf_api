@@ -103,10 +103,11 @@ start:
 				panic(err)
 			}
 			internal.StartUpdateAssets(data)
+			panic("发现新的资源，资源更新中...")
 		case OVERSPEED:
 			panic(OVERSPEED.Msg())
 		case LOGINED:
-			c.SignUp()
+			_ = c.SignUp()
 			if retry >= 3 {
 				panic(LOGINED.Msg())
 			}

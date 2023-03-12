@@ -2,6 +2,7 @@ package asset
 
 import (
 	"fmt"
+	"github.com/pkg/errors"
 	"strconv"
 )
 
@@ -21,16 +22,16 @@ func (a *Asset) GetItemListTable() ItemListTable {
 	intMap := parseIntMap(reader)
 	table := make(ItemListTable)
 	for i, params := range intMap {
-		rarity, err := strconv.ParseUint(params[14], 10, 8)
+		rarity, err := strconv.ParseUint(params[15], 10, 8)
 		if err != nil {
-			panic(err)
+			panic(errors.WithMessage(err, params[15]))
 		}
 		if rarity < 1 || rarity > 5 {
 			panic(fmt.Sprintf("%v\n%v", ErrItemRarity, rarity))
 		}
-		maxCount, err := strconv.Atoi(params[15])
+		maxCount, err := strconv.Atoi(params[16])
 		if err != nil {
-			panic(err)
+			panic(errors.WithMessage(err, params[16]))
 		}
 		table[i] = ItemList{
 			Name:     params[1],

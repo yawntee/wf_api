@@ -11,8 +11,8 @@ import (
 )
 
 type ShopEvent struct {
-	EventIds  []int `json:"event_ids"`
-	EventType int   `json:"event_type"`
+	EventIds  []int           `json:"event_ids"`
+	EventType asset.EventType `json:"event_type"`
 }
 
 type Shop struct {
@@ -24,18 +24,24 @@ type Shop struct {
 }
 
 func BossShops() []*Shop {
+	if cache, ok := asset.GlobalAsset.Cache["BossShops"].([]*Shop); ok {
+		return cache
+	}
 	var entries = make(map[int]*Shop)
-	bossTable := asset.GlobalAsset.GetBossListTable()
+	bossTable := asset.GlobalAsset.GetBossTable()
+	bossQuestTable := asset.GlobalAsset.GetBossQuestTable()
 	itemTable := asset.GlobalAsset.GetBossCoinShopTable()
-	for id, shop := range bossTable {
-		entries[id] = &Shop{
-			Types:  []int{asset.ShopTypeBossCoin},
-			Events: make([]ShopEvent, 0),
-			Ids:    []int{id},
-			Name:   shop.Name,
+	now := time.Now()
+	for id, boss := range bossTable {
+		if quest, ok := bossQuestTable[id]; ok && quest[0].StartTime.Before(now) && (quest[0].EndTime == nil || quest[0].EndTime.After(now)) {
+			entries[boss.BossShopId] = &Shop{
+				Types:  []int{asset.ShopTypeBossCoin},
+				Events: make([]ShopEvent, 0),
+				Ids:    []int{boss.BossShopId},
+				Name:   boss.Name,
+			}
 		}
 	}
-	now := time.Now()
 	for _, item := range itemTable {
 		if item.StartTime.Before(now) && (item.EndTime == nil || item.EndTime.After(now)) {
 			if shop, ok := entries[item.BossShopId]; ok {
@@ -43,33 +49,77 @@ func BossShops() []*Shop {
 			}
 		}
 	}
-	return maps.Values(entries)
+	rs := maps.Values(entries)
+	asset.GlobalAsset.Cache["BossShops"] = rs
+	return rs
 }
 
 func EventShops() []*Shop {
-	var entries = make(map[int]*Shop)
+	if cache, ok := asset.GlobalAsset.Cache["EventShops"].([]*Shop); ok {
+		return cache
+	}
+	type Key struct {
+		id  int
+		typ asset.EventType
+	}
+	var entries = make(map[Key]*Shop)
 	//获取兑换项信息
 	itemTable := asset.GlobalAsset.GetEventItemShopTable()
 	//筛选有效活动
 	now := time.Now()
+	adventQuestTable := asset.GlobalAsset.GetAdventEventQuestTable()
 	for id, event := range asset.GlobalAsset.GetAdventEventTable() {
-		if event.StartTime.Before(now) && event.ExchangeableEndTime.After(now) {
-			resolveEvent(entries, id, event)
+		if _, ok := adventQuestTable[id]; ok && event.StartTime.Before(now) && event.ExchangeableEndTime.After(now) {
+			entries[Key{
+				id:  id,
+				typ: event.Type,
+			}] = &Shop{
+				Types: []int{asset.ShopTypeEvent},
+				Events: []ShopEvent{
+					{EventIds: []int{id}, EventType: event.Type},
+				},
+				Ids:  make([]int, 0),
+				Name: event.Name,
+			}
+		}
+	}
+	storyQuestTable := asset.GlobalAsset.GetStoryEventQuestTable()
+	for id, event := range asset.GlobalAsset.GetStoryEventTable() {
+		if _, ok := storyQuestTable[id]; ok && event.StartTime.Before(now) && event.ExchangeableEndTime.After(now) {
+			entries[Key{
+				id:  id,
+				typ: event.Type,
+			}] = &Shop{
+				Types: []int{asset.ShopTypeEvent},
+				Events: []ShopEvent{
+					{EventIds: []int{id}, EventType: event.Type},
+				},
+				Ids:  make([]int, 0),
+				Name: event.Name,
+			}
 		}
 	}
 	for id, event := range asset.GlobalAsset.GetCollectItemEventTable() {
 		if event.StartTime.Before(now) && event.ExchangeableEndTime.After(now) {
-			resolveEvent(entries, id, event)
-		}
-	}
-	for id, event := range asset.GlobalAsset.GetStoryEventTable() {
-		if event.StartTime.Before(now) && event.ExchangeableEndTime.After(now) {
-			resolveEvent(entries, id, event)
+			entries[Key{
+				id:  id,
+				typ: event.Type,
+			}] = &Shop{
+				Types: []int{asset.ShopTypeEvent},
+				Events: []ShopEvent{
+					{EventIds: []int{id}, EventType: event.Type},
+				},
+				Ids:  make([]int, 0),
+				Name: event.Name,
+			}
 		}
 	}
 	//将物品放入对应活动商店
 	for _, item := range itemTable {
-		if entry, ok := entries[item.EventId]; ok {
+		if entry, ok := entries[Key{
+			id:  item.EventId,
+			typ: item.EventType,
+		}]; ok {
 			entry.Items = append(entry.Items, item.ShopItem)
 		}
 	}
@@ -80,18 +130,9 @@ func EventShops() []*Shop {
 		}
 	}
 	//获取物品库存
-	return maps.Values(entries)
-}
-
-func resolveEvent(mapper map[int]*Shop, id int, event asset.Event) {
-	mapper[id] = &Shop{
-		Types: []int{asset.ShopTypeEvent},
-		Events: []ShopEvent{
-			{EventIds: []int{id}, EventType: event.Type},
-		},
-		Ids:  make([]int, 0),
-		Name: event.Name,
-	}
+	rs := maps.Values(entries)
+	asset.GlobalAsset.Cache["EventShops"] = rs
+	return rs
 }
 
 type BuyingShop struct {

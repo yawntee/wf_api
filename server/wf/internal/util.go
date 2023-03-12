@@ -74,7 +74,6 @@ func StartUpdateAssets(data GameUpdateData) {
 	if context.UpdateMutex.TryLock() {
 		go updateAssets(data)
 	}
-	panic(context.ErrAssetUpdate)
 }
 
 func updateAssets(data GameUpdateData) {
@@ -113,59 +112,54 @@ mainloop:
 			slog.Info("缓存文件夹创建完毕")
 		}
 		//下载更新资源包
-		for _, ver := range data.Diff {
-			for _, packInfo := range ver.Archive {
-				pack, err := http.Get(packInfo.Location)
-				if err != nil {
-					if i == retryLimit {
-						assertUpdateFail(err)
-					}
-					fmt.Printf("更新出错，2秒后重试。。。\n%+v\n", errors.WithStack(err))
-					continue mainloop
-				}
-				out, err := os.Create(filepath.Join(assetCacheDir, packInfo.Location[strings.LastIndex(packInfo.Location, "/")+1:]))
-				if err != nil {
-					if i == retryLimit {
-						assertUpdateFail(err)
-					}
-					fmt.Printf("更新出错，2秒后重试。。。\n%+v\n", errors.WithStack(err))
-					continue mainloop
-				}
-				size, err := io.Copy(out, pack.Body)
-				if err != nil {
-					if i == retryLimit {
-						assertUpdateFail(err)
-					}
-					fmt.Printf("更新出错，2秒后重试。。。\n%+v\n", errors.WithStack(err))
-					continue mainloop
-				}
-				_ = out.Close()
-				slog.Info("资源包已下载", "StringId", out.Name(), "Size", size)
-			}
-		}
-		//解压资源包
-		packs, err := os.ReadDir(assetCacheDir)
-		if err != nil {
-			if i == retryLimit {
-				assertUpdateFail(err)
-			}
-			fmt.Printf("更新出错，2秒后重试。。。\n%+v\n", errors.WithStack(err))
-			continue mainloop
-		}
 		zipper := archiver.NewZip()
 		zipper.OverwriteExisting = true
-		for _, pack := range packs {
-			if !pack.IsDir() && strings.HasSuffix(pack.Name(), ".zip") {
-				slog.Info("解压资源包", "StringId", pack.Name())
-				err := zipper.Unarchive(filepath.Join(assetCacheDir, pack.Name()), asset.DownloadAssetPath)
-				if err != nil {
-					if i == retryLimit {
-						assertUpdateFail(err)
-					}
-					fmt.Printf("更新出错，2秒后重试。。。\n%+v\n", errors.WithStack(err))
-					continue mainloop
-				}
+		packs := data.Full.Archive
+
+		for _, ver := range data.Diff {
+			for _, packInfo := range ver.Archive {
+				packs = append(packs, packInfo)
 			}
+		}
+
+		for _, packInfo := range packs {
+			pack, err := http.Get(packInfo.Location)
+			if err != nil {
+				if i == retryLimit {
+					assertUpdateFail(err)
+				}
+				fmt.Printf("更新出错，2秒后重试。。。\n%+v\n", errors.WithStack(err))
+				continue mainloop
+			}
+			filename := packInfo.Location[strings.LastIndex(packInfo.Location, "/")+1:]
+			out, err := os.OpenFile(filepath.Join(assetCacheDir, filename), os.O_RDWR|os.O_CREATE, os.ModePerm)
+			if err != nil {
+				if i == retryLimit {
+					assertUpdateFail(err)
+				}
+				fmt.Printf("更新出错，2秒后重试。。。\n%+v\n", errors.WithStack(err))
+				continue mainloop
+			}
+			size, err := io.Copy(out, pack.Body)
+			if err != nil {
+				if i == retryLimit {
+					assertUpdateFail(err)
+				}
+				fmt.Printf("更新出错，2秒后重试。。。\n%+v\n", errors.WithStack(err))
+				continue mainloop
+			}
+			//解压资源包
+			slog.Info("解压资源包", "StringId", filename)
+			err = zipper.Unarchive(filepath.Join(assetCacheDir, filename), asset.AssetDownloadDir)
+			if err != nil {
+				if i == retryLimit {
+					assertUpdateFail(err)
+				}
+				fmt.Printf("更新出错，2秒后重试。。。\n%+v\n", errors.WithStack(err))
+				continue mainloop
+			}
+			_ = out.Close()
+			slog.Info("资源包已下载", "StringId", out.Name(), "Size", size)
 		}
 		//重置缓存
 		asset.GlobalAsset.Reset()

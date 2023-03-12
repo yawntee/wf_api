@@ -17,11 +17,11 @@ func (a *Asset) GetCollectItemEventTable() CollectItemEventTable {
 	intMap := parseIntMap(reader)
 	table := make(CollectItemEventTable)
 	for id, params := range intMap {
-		startTime := util.ParseIso(params[17])
-		playableEndTime := util.ParseIso(params[18])
+		startTime := util.ParseIso(params[19])
+		playableEndTime := util.ParseIso(params[20])
 		var exchangeableEndTime time.Time
-		if t := params[19]; t != "(None)" {
-			exchangeableEndTime = util.ParseIso(params[19])
+		if t := params[21]; t != "(None)" {
+			exchangeableEndTime = util.ParseIso(t)
 		} else {
 			exchangeableEndTime = playableEndTime
 		}
@@ -30,7 +30,7 @@ func (a *Asset) GetCollectItemEventTable() CollectItemEventTable {
 			StartTime:           startTime,
 			PlayableEndTime:     playableEndTime,
 			ExchangeableEndTime: exchangeableEndTime,
-			Type:                9,
+			Type:                EventTypeCarnivalEvent,
 		}
 	}
 	a.Cache["CollectItemEvent"] = table

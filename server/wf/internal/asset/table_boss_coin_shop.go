@@ -24,7 +24,7 @@ func (a *Asset) GetBossCoinShopTable() BossCoinShopTable {
 		if err != nil {
 			panic(err)
 		}
-		shopItem := a.parseShopItem(params, 4, 29, 11, 22, 25, 12)
+		shopItem := a.parseShopItem(params, 6, 31, 13, 24, 27, 14)
 		shopItem.Id = id
 		if err != nil {
 			panic(err)

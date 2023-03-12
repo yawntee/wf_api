@@ -20,7 +20,7 @@ func intKeyParser(key string) int {
 func parseIntMap(input io.Reader) map[int][]string {
 	return parseAnyMap(input, intKeyParser, func(data []byte) []string {
 		uncompressed := UncompressZlib(data)
-		return strings.Split(string(uncompressed), ",")
+		return splitValues(string(uncompressed))
 	})
 }
 
@@ -29,7 +29,7 @@ func parseStrMap(input io.Reader) map[string][]string {
 		return key
 	}, func(data []byte) []string {
 		uncompressed := UncompressZlib(data)
-		return strings.Split(string(uncompressed), ",")
+		return splitValues(string(uncompressed))
 	})
 }
 
@@ -109,4 +109,26 @@ func parseStr(path string) []string {
 		panic(err)
 	}
 	return strings.Split(string(file), ",")
+}
+
+func splitValues(values string) []string {
+	var arr []string
+	var start = 0
+	for i := 0; i < len(values); i++ {
+		switch values[i] {
+		case '"':
+			i++
+			start = i
+			for ; values[i] != '"'; i++ {
+			}
+			arr = append(arr, values[start:i])
+			start = i + 2
+			i++
+		case ',':
+			arr = append(arr, values[start:i])
+			start = i + 1
+		}
+	}
+	arr = append(arr, values[start:])
+	return arr
 }

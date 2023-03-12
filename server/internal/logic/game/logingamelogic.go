@@ -56,6 +56,9 @@ func (l *LoginGameLogic) LoginGame(req *types.LoginGameReq) (resp *types.Resp, e
 	if err != nil {
 		return internal.ReportError(err)
 	}
+	go func() {
+		_ = c.SignUp()
+	}()
 	return internal.Success(fmt.Sprintf("<%s>登录成功", c.GameUser.Username), map[string]any{
 		"id": c.GameUser.Uid,
 	})

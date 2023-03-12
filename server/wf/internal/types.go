@@ -17,12 +17,20 @@ type GameUser struct {
 
 type GameUpdateData struct {
 	Info struct {
-		ClientAssetVersion         string `mapstructure:"client_asset_version"`
+		ClientAssetVersion         bool   `mapstructure:"client_asset_version"`
 		TargetAssetVersion         string `mapstructure:"target_asset_version"`
 		EventualTargetAssetVersion string `mapstructure:"eventual_target_asset_version"`
 		IsInitial                  bool   `mapstructure:"is_initial"`
 		LatestMajFirstVersion      string `mapstructure:"latest_maj_first_version"`
 	} `mapstructure:"info"`
+	Full struct {
+		Version string `mapstructure:"version"`
+		Archive []struct {
+			Location string `mapstructure:"location"`
+			Size     int    `mapstructure:"size"`
+			Sha256   string `mapstructure:"sha256"`
+		} `mapstructure:"archive"`
+	} `mapstructure:"full"`
 	Diff []struct {
 		Version         string `mapstructure:"version"`
 		OriginalVersion string `mapstructure:"original_version"`

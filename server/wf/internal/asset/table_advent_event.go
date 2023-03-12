@@ -16,15 +16,15 @@ func (a *Asset) GetAdventEventTable() AdventEventTable {
 	intMap := parseIntMap(reader)
 	table := make(AdventEventTable)
 	for i, params := range intMap {
-		startTime := util.ParseIso(params[15])
-		playableEndTime := util.ParseIso(params[16])
-		exchangeableEndTime := util.ParseIso(params[17])
+		startTime := util.ParseIso(params[16])
+		playableEndTime := util.ParseIso(params[17])
+		exchangeableEndTime := util.ParseIso(params[18])
 		table[i] = AdventEvent{
-			Name:                params[1],
+			Name:                params[2],
 			StartTime:           startTime,
 			PlayableEndTime:     playableEndTime,
 			ExchangeableEndTime: exchangeableEndTime,
-			Type:                0,
+			Type:                EventTypeAdvent,
 		}
 	}
 	a.Cache["AdventEvent"] = table

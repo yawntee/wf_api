@@ -19,8 +19,8 @@ func (a *Asset) GetEventListTable() EventListTable {
 	reader := a.GetTableFile("/quest/event/event_list")
 	intMap := parseIntMap(reader)
 	table := make(EventListTable)
-	for _, params := range intMap {
-		id, err := strconv.Atoi(params[1])
+	for id, params := range intMap {
+		eventId, err := strconv.Atoi(params[1])
 		if err != nil {
 			panic(err)
 		}
@@ -28,11 +28,11 @@ func (a *Asset) GetEventListTable() EventListTable {
 		if err != nil {
 			panic(err)
 		}
-		if EventType(_type) > EventTypeExpertSingle {
+		if EventType(_type) > EventTypeRaidEvent {
 			panic(fmt.Sprintf("%v\n%v", ErrInvalidEventType, _type))
 		}
 		table[id] = EventList{
-			Id:   id,
+			Id:   eventId,
 			Type: EventType(_type),
 		}
 	}

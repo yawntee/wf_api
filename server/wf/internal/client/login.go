@@ -1,12 +1,14 @@
 package client
 
 import (
+	"github.com/pkg/errors"
+	"net/http"
 	"wf_api/server/wf/internal"
 )
 
-func (c *Client) SignUp() {
+func (c *Client) SignUp() error {
 	if c.inited {
-		return
+		return nil
 	}
 	if c.GameUser == nil {
 		panic(internal.ErrNoLogin)
@@ -32,13 +34,40 @@ func (c *Client) SignUp() {
 	c.viewerId = resp.DataHeaders.ViewerId
 	c.logintoken = resp.Data.LoginToken
 	c.inited = true
+	if checkUpdate(c) {
+		return errors.New("游戏资源更新中...")
+	}
+	return nil
+}
+
+func checkUpdate(c *Client) bool {
+	body := map[string]any{
+		"viewer_id":            c.viewerId,
+		"client_asset_version": internal.GlobalConfig.ResVer,
+	}
+	var resp GameResp[internal.GameUpdateData]
+	PostMsgpack(c, "https://shijtswygamegf.leiting.com//api/index.php/asset/get_path", body, &resp, func(req *http.Request) {
+		c.SignReqWithViewerId(req)
+		if internal.GlobalConfig.ResVer == "" {
+			req.Header.Del("RES_VER")
+		}
+		req.Header.Set("ASSET_SIZE", "shortened")
+	})
+	if diff := resp.Data.Diff; diff != nil && len(diff) > 0 {
+		internal.StartUpdateAssets(resp.Data)
+		return true
+	}
+	return false
 }
 
 func (c *Client) LoadGameData() (*internal.GameUserInfo, error) {
 	if c.apiCount > 0 {
 		c.inited = false
 	}
-	c.SignUp()
+	err := c.SignUp()
+	if err != nil {
+		return nil, err
+	}
 	body := map[string]any{
 		"oaid":                 c.Encrypt.Oaid,
 		"viewer_id":            c.viewerId,

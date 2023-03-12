@@ -33,7 +33,7 @@ func (a *Asset) GetEventItemShopTable() EventItemShopTable {
 		if err != nil {
 			panic(err)
 		}
-		item := a.parseShopItem(params, 6, 30, 13, 24, 27, 14)
+		item := a.parseShopItem(params, 7, 31, 14, 25, 28, 15)
 		item.Id = id
 		if err != nil {
 			panic(err)

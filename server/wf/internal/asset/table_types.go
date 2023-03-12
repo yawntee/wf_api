@@ -21,7 +21,7 @@ type Event struct {
 	StartTime           time.Time //事件起始时间
 	PlayableEndTime     time.Time //参与结束时间
 	ExchangeableEndTime time.Time //兑换结束时间
-	Type                int       //商店类型
+	Type                EventType //商店类型
 }
 
 type EventType int
@@ -36,6 +36,8 @@ const (
 	EventTypeWorldStory
 	EventTypeTowerDungeon
 	EventTypeExpertSingle
+	EventTypeCarnivalEvent
+	EventTypeRaidEvent
 )
 
 const (
