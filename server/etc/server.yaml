@@ -1,7 +1,0 @@
-Name: server
-Host: 0.0.0.0
-Port: 8888
-DataSource: root:123456@tcp(localhost:3306)/wf
-Auth:
-  AccessSecret: bcc2ff35-67c7-11ed-9dd8-fcd5d8a4894f
-  AccessExpire: 604800
